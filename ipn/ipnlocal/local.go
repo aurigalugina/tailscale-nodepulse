@@ -2735,7 +2735,7 @@ func (b *LocalBackend) startLocked(opts ipn.Options) error {
 	loggedOut := prefs.LoggedOut()
 
 	serverURL := prefs.ControlURLOrDefault(b.polc)
-	if inServerMode := true // NodePulse: force server mode; inServerMode || runtime.GOOS == "windows" {
+	if inServerMode := true /* NodePulse: force server mode */; inServerMode || runtime.GOOS == "windows" {
 		logf("serverMode=%v", inServerMode)
 	}
 	b.applyPrefsToHostinfoLocked(b.hostinfo, prefs)
