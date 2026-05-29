@@ -4277,13 +4277,14 @@ func (b *LocalBackend) resolveBestProfileLocked() (_ ipn.LoginProfileView, isBac
 	// If the returned background profileID is "", Tailscale will disconnect
 	// and remain idle until a GUI or CLI client connects.
 	if goos := envknob.GOOS(); goos == "windows" {
-		// If Unattended Mode is enabled for the current profile, keep using it.
-		if b.pm.CurrentPrefs().ForceDaemon() {
-			return b.pm.CurrentProfile(), true
-		}
-		// Otherwise, use the profile returned by the extension.
-		profile := b.extHost.DetermineBackgroundProfile(b.pm)
-		return profile, true
+		// NodePulse Patch 6: always stay on the current profile in server mode.
+		// The default path calls extHost.DetermineBackgroundProfile which returns an
+		// empty profile when ForceDaemon=false — causing the daemon to disconnect
+		// immediately when the tailscale CLI exits. With an empty profile, prefs are
+		// reset (WantRunning=false) and doLogin is interrupted before it can complete.
+		// In server mode the profile's own WantRunning flag controls connectivity;
+		// we never need the CLI-disconnect path to force a disconnect.
+		return b.pm.CurrentProfile(), true /* NodePulse: always server mode */
 	}
 
 	// On other platforms, however, Tailscale continues to run in the background
