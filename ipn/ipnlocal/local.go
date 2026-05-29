@@ -1859,7 +1859,7 @@ func (b *LocalBackend) setControlClientStatusLocked(c controlclient.Client, st c
 			b.health.SetLocalLogConfigHealth(errors.New(msg))
 			// Get the current prefs again, since we unlocked above.
 			prefs := b.pm.CurrentPrefs().AsStruct()
-			prefs.WantRunning = false
+			prefs.WantRunning = b.pm.CurrentPrefs().WantRunning() // NodePulse: preserve WantRunning
 			p := prefs.View()
 			if err := b.pm.SetPrefs(p, ipn.NetworkProfile{
 				MagicDNSName: st.NetMap.MagicDNSSuffix(),
