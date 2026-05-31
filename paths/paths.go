@@ -23,7 +23,11 @@ var AppSharedDir syncs.AtomicValue[string]
 // or the empty string if there's no reasonable default.
 func DefaultTailscaledSocket() string {
 	if runtime.GOOS == "windows" {
-		return `\\.\pipe\ProtectedPrefix\Administrators\Tailscale\tailscaled`
+		// NodePulse Patch 8: use our isolated named pipe instead of the default
+		// ProtectedPrefix Tailscale pipe. The Windows service spawns a child
+		// process (/subproc) that uses these defaults — args passed to the parent
+		// service are NOT forwarded to the child, so defaults must be correct.
+		return `\\.\pipe\NodePulseConnect-tailscaled`
 	}
 	if runtime.GOOS == "darwin" {
 		return "/var/run/tailscaled.socket"
@@ -66,7 +70,10 @@ func DefaultTailscaledStateFile() string {
 		return f()
 	}
 	if runtime.GOOS == "windows" {
-		return filepath.Join(os.Getenv("ProgramData"), "Tailscale", "server-state.conf")
+		// NodePulse Patch 8: use our isolated statedir in ProgramData.
+		// The /subproc child inherits this default, not the --state flag
+		// passed to the parent service process.
+		return filepath.Join(os.Getenv("ProgramData"), "NodePulse Connect", "tailscale-state", "tailscale.state")
 	}
 	return ""
 }
