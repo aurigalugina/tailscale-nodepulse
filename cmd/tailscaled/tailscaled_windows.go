@@ -89,7 +89,11 @@ func init() {
 	}
 }
 
-const serviceName = "Tailscale"
+// NodePulse Patch 7: use our own service name so svc.Run registers correctly
+// with the Windows SCM. The default "Tailscale" would conflict with the
+// official Tailscale and cause RegisterServiceCtrlHandlerEx to fail when SCM
+// starts this binary as "NodePulseConnectDaemon".
+const serviceName = "NodePulseConnectDaemon"
 
 // Application-defined command codes between 128 and 255
 // See https://web.archive.org/web/20221007222822/https://learn.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-controlservice
